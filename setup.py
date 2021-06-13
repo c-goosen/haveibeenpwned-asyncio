@@ -3,7 +3,7 @@ import os
 from setuptools import setup, find_packages
 import codecs
 
-from za_id_number import __version__
+from haveibeenpwned_asyncio import __version__
 
 this_directory = os.path.abspath(os.path.dirname(__file__))
 with open(os.path.join(this_directory, "README.md"), encoding="utf-8") as f:
@@ -30,12 +30,12 @@ tests_require = [
 ]
 
 setup(
-    name="za-id-number",
+    name="haveibeenpwned-asyncio",
     version=__version__,
-    description=" South African (RSA/ZA) ID number validation and easy data extraction Library.",
+    description="Asyncio and aiohttp based library and CLI to connect to haveibeenpwned.",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/c-goosen/za_identity_number",
+    url="https://github.com/c-goosen/haveibeenpwned-asyncio",
     author="Christo Goosen",
     author_email="christogoosen@gmail.com",
     python_requires=">=3.5.0",
@@ -64,7 +64,7 @@ setup(
     packages=find_packages(
         exclude=["docs", "docs-src", "tests", "tests.*", "tutorial"]
     ),
-    setup_requires=["luhn >= 0.2.0 ", "setuptools"],
+    setup_requires=["aiohttp", "setuptools"],
     test_suite="tests",
     tests_require=tests_require,
     extras_require={"dev": ["bandit", "black", "flake8"] + tests_require},

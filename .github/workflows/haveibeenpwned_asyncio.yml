@@ -1,4 +1,4 @@
-name: ZA ID CI
+name: haveibeenpwned-asyncio CI/CD
 
 on:
   push:
