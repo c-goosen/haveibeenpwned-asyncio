@@ -66,6 +66,7 @@ setup(
         exclude=["docs", "docs-src", "tests", "tests.*", "tutorial"]
     ),
     setup_requires=["aiohttp", "setuptools", "click"],
+    install_requires=["aiohttp", "click"],
     test_suite="tests",
     tests_require=tests_require,
     extras_require={"dev": ["bandit", "black", "flake8"] + tests_require},
