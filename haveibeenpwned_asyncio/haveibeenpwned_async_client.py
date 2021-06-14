@@ -19,9 +19,6 @@ class haveIbeenPwnedClient(object):
         self.loop = asyncio.get_event_loop()
 
 
-
-
-
     def generate_url(self, endpoint, object):
         return f"{self.base_url}/{endpoint}/{quote_plus(object)}"
 

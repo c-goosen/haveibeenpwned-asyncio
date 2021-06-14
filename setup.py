@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import os
 from setuptools import setup, find_packages
@@ -64,8 +65,9 @@ setup(
     packages=find_packages(
         exclude=["docs", "docs-src", "tests", "tests.*", "tutorial"]
     ),
-    setup_requires=["aiohttp", "setuptools"],
+    setup_requires=["aiohttp", "setuptools", "click"],
     test_suite="tests",
     tests_require=tests_require,
     extras_require={"dev": ["bandit", "black", "flake8"] + tests_require},
+    scripts=['bin/haveibeenpwned_async'],
 )

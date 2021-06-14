@@ -1,9 +1,11 @@
-__version__ = "0.0.1"
+__version__ = "0.0.2"
 
-from haveibeenpwned_asyncio.haveibeenpwned_async_client import haveibeenpwned, haveIbeenPwnedAccount, haveIbeenPwnedPasswords
+from haveibeenpwned_asyncio.haveibeenpwned_async_client import haveibeenpwned, \
+    haveIbeenPwnedAccount, haveIbeenPwnedPasswords, haveIbeenPwnedClient
 
 __all__ = [
     'haveIbeenPwnedPasswords',
     'haveIbeenPwnedAccount',
     'haveIbeenPwnedPastes',
+    'haveIbeenPwnedClient'
 ]

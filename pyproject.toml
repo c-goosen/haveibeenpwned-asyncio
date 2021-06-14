@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "haveibeenpwned-asyncio"
-version = "0.0.1"
+version = "0.0.2"
 description = "Asyncio and aiohttp based library and CLI to connect to haveibeenpwned"
 authors = ["Christo Goosen <christogoosen@gmail.com>"]
 license = "MIT"
@@ -13,6 +13,7 @@ packages = [
 [tool.poetry.dependencies]
 python = "^3.7"
 aiohttp = "^3.7.4"
+click = "^8.0.1"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.1"
