@@ -7,7 +7,7 @@ import codecs
 
 from haveibeenpwned_asyncio import __version__
 
-scripts = glob.glob('bin/*')
+scripts = glob.glob("bin/*")
 this_directory = os.path.abspath(os.path.dirname(__file__))
 with open(os.path.join(this_directory, "README.md"), encoding="utf-8") as f:
     long_description = f.read()
@@ -65,8 +65,8 @@ setup(
     ],
     keywords="South Africa ID Number",
     packages=find_packages(
-        include=["haveibeenpwned_async", "haveibeenpwned_async", 'bin/*'],
-        exclude=["docs", "docs-src", "tests", "tests.*", "tutorial"]
+        include=["haveibeenpwned_async", "haveibeenpwned_async", "bin/*"],
+        exclude=["docs", "docs-src", "tests", "tests.*", "tutorial"],
     ),
     setup_requires=["aiohttp", "setuptools", "click"],
     install_requires=["aiohttp", "click"],
@@ -74,5 +74,5 @@ setup(
     tests_require=tests_require,
     extras_require={"dev": ["bandit", "black", "flake8"] + tests_require},
     scripts=scripts,
-    zip_safe=True
+    zip_safe=True,
 )

@@ -69,6 +69,27 @@ haveIbeenPwnedAccount(
             api_key='xxxxxxxxx')
 ```
 
+## CLI
+Includes a CLI interface using pythong click library
+
+```bash
+(.venv) goose@pop-os:~/Development/haveibeenpwned_asyncio$ haveibeenpwned_async --help
+Usage: haveibeenpwned_async [OPTIONS] COMMAND [ARGS]...
+
+Options:
+  --help  Show this message and exit.
+
+Commands:
+  accounts
+  passwords
+  pastes
+
+
+```
+
+## Speed
+Check the file run_test_speed.py. This will give you an idea of the speedup asyncio does with multiple IO bound network calls
+
 ## TODO:
 * Add API key to github actions for pytest to pass on breachedAccount
 
