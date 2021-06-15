@@ -1,4 +1,4 @@
-__version__ = "0.0.2"
+__version__ = "0.0.3"
 
 from haveibeenpwned_asyncio.haveibeenpwned_async_client import haveibeenpwned, \
     haveIbeenPwnedAccount, haveIbeenPwnedPasswords, haveIbeenPwnedClient
