@@ -34,7 +34,7 @@ tests_require = [
     "pytest-asyncio",
     "asynctest",
     "pytest-mock",
-    "aiohttp-retry"
+    "aiohttp-retry",
 ]
 
 setup(

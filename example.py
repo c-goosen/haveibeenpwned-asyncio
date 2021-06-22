@@ -1,5 +1,9 @@
 import os
-from haveibeenpwned_asyncio import haveIbeenPwnedPasswords, haveIbeenPwnedAccount, haveIbeenPwnedPastes
+from haveibeenpwned_asyncio import (
+    haveIbeenPwnedPasswords,
+    haveIbeenPwnedAccount,
+    haveIbeenPwnedPastes,
+)
 import asyncio
 
 if __name__ == "__main__":
@@ -8,9 +12,7 @@ if __name__ == "__main__":
     passwords = ["P@ssw0rd"]
     accounts = ["admin@gmail.com", "test@test.com", "test@gmail.com"]
 
-    test_passwords = haveIbeenPwnedPasswords(
-                passwords=passwords, semaphore_max=10
-            )
+    test_passwords = haveIbeenPwnedPasswords(passwords=passwords, semaphore_max=10)
     print("\n>>>> test_passwords.query_accounts")
     print(loop.run_until_complete(test_passwords.query_passwords()))
     print("\n>>>> test_passwords.query_passwords_sync")
