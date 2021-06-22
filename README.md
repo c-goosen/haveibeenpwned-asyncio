@@ -104,3 +104,5 @@ Check the file run_test_speed.py. This will give you an idea of the speedup asyn
 Please feel free to buy me a cup of coffee as I pay a monthly $3 to test the library against haveibeenpwned's 
 monthly billed API key
 
+buymeacoffee.com/crypticg00se                
+
