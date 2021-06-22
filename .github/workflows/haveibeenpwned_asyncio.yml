@@ -30,7 +30,7 @@ jobs:
       - name: Install Poetry
         run: pip install poetry
 
-      - name: Install Dependencies
+      - name: Test Install Lib Dependencies
         run: poetry run python setup.py install
 
       - name: Install Dev Dependencies
