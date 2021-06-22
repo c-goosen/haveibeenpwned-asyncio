@@ -1,6 +1,6 @@
 # haveibeenpwned-asyncio
 
-v0.0.4-1
+v0.0.4-2
 
 Library to query and check haveibeenpwned with the aiohttp library.
 
