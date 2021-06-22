@@ -2,7 +2,7 @@ name: haveibeenpwned-asyncio CI/CD
 
 on:
   push:
-    branches: [dev, test, master]
+    branches: [dev, test, main]
   pull_request:
     branches:
       - '*'
@@ -17,7 +17,7 @@ jobs:
         python-version: [3.6, 3.7, 3.8, 3.9]
 
     steps:
-      - uses: actions/checkout@master
+      - uses: actions/checkout@main
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v1
