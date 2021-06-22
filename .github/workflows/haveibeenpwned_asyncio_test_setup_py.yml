@@ -1,5 +1,4 @@
-name: haveibeenpwned-asyncio CI/CD
-
+name: haveibeenpwned-asyncio test setup.py install
 on:
   push:
     branches: [dev, test, main]
