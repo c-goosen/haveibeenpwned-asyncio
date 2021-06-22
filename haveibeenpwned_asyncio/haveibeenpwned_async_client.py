@@ -9,7 +9,7 @@ from haveibeenpwned_asyncio.constants import haveibeenpwned, hashing
 
 class haveIbeenPwnedClient(object):
     def __init__(
-        self, semaphore_max: int = 10,
+        self, semaphore_max: int = 5,
             api_key: str = "",
             truncate_response: bool = True,
             retry_attempts=3
@@ -22,7 +22,12 @@ class haveIbeenPwnedClient(object):
         self.truncate_response: bool = truncate_response
         self.loop = asyncio.get_event_loop()
         self.retry_attempts = retry_attempts
-        self.retry_options = ExponentialRetry(attempts=self.retry_attempts)
+        self.retry_options = ExponentialRetry(
+            start_timeout=5,
+            max_timeout=60,
+            attempts=self.retry_attempts,
+            statuses=[429]
+        )
 
     def generate_url(self, endpoint, object):
         return f"{self.base_url}/{endpoint}/{quote_plus(object)}"
@@ -71,7 +76,7 @@ class haveIbeenPwnedClient(object):
 
 
 class haveIbeenPwnedAccount(haveIbeenPwnedClient):
-    def __init__(self, semaphore_max: int = 10, accounts: list = [], api_key: str = ""):
+    def __init__(self, semaphore_max: int = 5, accounts: list = [], api_key: str = ""):
         self.semaphore_max = semaphore_max
         super().__init__(accounts, api_key)
         self.endpoint = haveibeenpwned.ACCOUNT_ENDPOINT.value
@@ -93,7 +98,7 @@ class haveIbeenPwnedAccount(haveIbeenPwnedClient):
         return self.loop.run_until_complete(coroutine)
 
 class haveIbeenPwnedPastes(haveIbeenPwnedAccount):
-    def __init__(self, semaphore_max: int = 10, accounts: list = [], api_key: str = ""):
+    def __init__(self, semaphore_max: int = 5, accounts: list = [], api_key: str = ""):
         super().__init__(accounts, api_key)
         self.api_key = api_key
         self.semaphore_max = semaphore_max
@@ -104,7 +109,7 @@ class haveIbeenPwnedPastes(haveIbeenPwnedAccount):
 
 class haveIbeenPwnedPasswords(haveIbeenPwnedClient):
     def __init__(
-        self, semaphore_max: int = 10, passwords: list = [], api_key: str = ""
+        self, semaphore_max: int = 5, passwords: list = [], api_key: str = ""
     ):
         super().__init__(passwords, api_key)
         self.semaphore_max = semaphore_max

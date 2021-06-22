@@ -105,7 +105,7 @@ class TesthaveIbeenPwnedClient:
 
         # Mock aiohttp response
         resp = MockResponse(resp_body, 200)
-        mocker.patch('aiohttp.ClientSession.get', return_value=resp)
+        mocker.patch('aiohttp_retry.RetryClient.get', return_value=resp)
 
         client = haveIbeenPwnedClient(
             semaphore_max=1, truncate_response=False
