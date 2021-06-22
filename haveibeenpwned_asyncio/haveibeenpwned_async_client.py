@@ -1,6 +1,5 @@
 import asyncio
 from hashlib import sha1
-import os
 from functools import lru_cache
 from urllib.parse import quote_plus
 from aiohttp_retry import RetryClient, ExponentialRetry
@@ -9,10 +8,11 @@ from haveibeenpwned_asyncio.constants import haveibeenpwned, hashing
 
 class haveIbeenPwnedClient(object):
     def __init__(
-        self, semaphore_max: int = 5,
-            api_key: str = "",
-            truncate_response: bool = True,
-            retry_attempts=3
+        self,
+        semaphore_max: int = 5,
+        api_key: str = "",
+        truncate_response: bool = True,
+        retry_attempts=3,
     ):
         self.semaphore_max = semaphore_max
         self.semaphore = asyncio.Semaphore(10)
@@ -26,7 +26,7 @@ class haveIbeenPwnedClient(object):
             start_timeout=5,
             max_timeout=60,
             attempts=self.retry_attempts,
-            statuses=[429]
+            statuses=[429],
         )
 
     def generate_url(self, endpoint, object):
@@ -45,14 +45,16 @@ class haveIbeenPwnedClient(object):
     #     else:
     #         return  responses
 
-    async def aiohttp_client_get(self, url: str= "", obj: str = ""):
+    async def aiohttp_client_get(self, url: str = "", obj: str = ""):
 
         await self.semaphore.acquire()
         url = url + f"?truncateResponse={self.truncate_response}"
         headers = await self.prep_headers(haveibeenpwned.HTTP_HEADER.value)
 
         try:
-            async with RetryClient(raise_for_status=False, retry_options=self.retry_options) as client:
+            async with RetryClient(
+                raise_for_status=False, retry_options=self.retry_options
+            ) as client:
                 async with client.get(url, headers=headers) as resp:
                     resp_tuple = obj, resp.status, await resp.text()
                     self.semaphore.release()
@@ -97,6 +99,7 @@ class haveIbeenPwnedAccount(haveIbeenPwnedClient):
         coroutine = self.query_accounts()
         return self.loop.run_until_complete(coroutine)
 
+
 class haveIbeenPwnedPastes(haveIbeenPwnedAccount):
     def __init__(self, semaphore_max: int = 5, accounts: list = [], api_key: str = ""):
         super().__init__(accounts, api_key)
@@ -107,10 +110,9 @@ class haveIbeenPwnedPastes(haveIbeenPwnedAccount):
 
         print(self.__dict__)
 
+
 class haveIbeenPwnedPasswords(haveIbeenPwnedClient):
-    def __init__(
-        self, semaphore_max: int = 5, passwords: list = [], api_key: str = ""
-    ):
+    def __init__(self, semaphore_max: int = 5, passwords: list = [], api_key: str = ""):
         super().__init__(passwords, api_key)
         self.semaphore_max = semaphore_max
         self.endpoint = haveibeenpwned.PASSWORD_ENDPOINT.value
@@ -118,12 +120,14 @@ class haveIbeenPwnedPasswords(haveIbeenPwnedClient):
         self.api_key = ""
         self.base_url = haveibeenpwned.PASSWORD_BASE_URL.value
 
-    async def find_corresponding_hash(self, responses:list=[]):
+    async def find_corresponding_hash(self, responses: list = []):
         response_list = []
         for resp in responses:
             if resp[1] == 200:
                 compare_hash = self.hibp_hash(self.generate_hash(resp[0]))
-                response_list.append((resp[0], bool(True if compare_hash in resp[2] else False)))
+                response_list.append(
+                    (resp[0], bool(True if compare_hash in resp[2] else False))
+                )
             else:
                 response_list.append(resp[0], False)
         return response_list
@@ -172,4 +176,3 @@ class haveIbeenPwnedPasswords(haveIbeenPwnedClient):
     def query_passwords_sync(self):
         coroutine = self.query_passwords()
         return self.loop.run_until_complete(coroutine)
-

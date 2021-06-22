@@ -2,16 +2,13 @@ import pytest
 import time
 from haveibeenpwned_asyncio import haveIbeenPwnedClient
 from haveibeenpwned_asyncio.constants import haveibeenpwned
-import aiohttp
-import asyncio
-import aresponses
 
 from collections.abc import Coroutine
 
 from .conftest import MockResponse
 
-class TesthaveIbeenPwnedClient:
 
+class TesthaveIbeenPwnedClient:
     @pytest.fixture
     def urls_fixture(self):
         return [
@@ -62,13 +59,17 @@ class TesthaveIbeenPwnedClient:
         )
 
     @pytest.mark.asyncio
-    async def test_queue_all_requeusts(self, mocker, urls_fixture, haveibeenpwned_client_fixture):
+    async def test_queue_all_requeusts(
+        self, mocker, urls_fixture, haveibeenpwned_client_fixture
+    ):
         resp = MockResponse("", 200)
-        mocker.patch('aiohttp.ClientSession.get', return_value=resp)
+        mocker.patch("aiohttp.ClientSession.get", return_value=resp)
 
-        tasks = await haveibeenpwned_client_fixture.queue_all_requeusts(urls=urls_fixture)
+        tasks = await haveibeenpwned_client_fixture.queue_all_requeusts(
+            urls=urls_fixture
+        )
         assert len(tasks) == 3
-        for x in range(0,2):
+        for x in range(0, 2):
             assert isinstance(tasks[x], Coroutine)
         # Cleanup coroutines
         for task in tasks:
@@ -77,27 +78,27 @@ class TesthaveIbeenPwnedClient:
 
     @pytest.mark.asyncio
     async def test_gather_all_requests(self, haveibeenpwned_client_fixture):
-
-        async def await_test_func(timer:int=0):
+        async def await_test_func(timer: int = 0):
             """
             Function only to mock a courotine
             """
-            time.sleep(timer/5)
+            time.sleep(timer / 5)
             return timer
 
         asyncio_tasks = []
-        for x in range(0,5):
+        for x in range(0, 5):
             asyncio_tasks.append(await_test_func(x))
 
-        responses = await haveibeenpwned_client_fixture.gather_all_requests(asyncio_tasks=asyncio_tasks)
+        responses = await haveibeenpwned_client_fixture.gather_all_requests(
+            asyncio_tasks=asyncio_tasks
+        )
 
         assert len(responses) == 5
         for x in range(0, 5):
             assert responses[x] == x
 
-
     @pytest.mark.asyncio
-    async def test_aiohttp_client_get(self,mocker):
+    async def test_aiohttp_client_get(self, mocker):
         resp_body = "0000798DC29B019E225BC6853A6E4A6841C"
         base_url = f"{haveibeenpwned.BASE_URL.value}"
         endpoint = "/range/01C92"
@@ -105,11 +106,9 @@ class TesthaveIbeenPwnedClient:
 
         # Mock aiohttp response
         resp = MockResponse(resp_body, 200)
-        mocker.patch('aiohttp_retry.RetryClient.get', return_value=resp)
+        mocker.patch("aiohttp_retry.RetryClient.get", return_value=resp)
 
-        client = haveIbeenPwnedClient(
-            semaphore_max=1, truncate_response=False
-        )
+        client = haveIbeenPwnedClient(semaphore_max=1, truncate_response=False)
         resp = await client.aiohttp_client_get(url=full_url, obj="01C92")
 
         assert resp[1] == 200

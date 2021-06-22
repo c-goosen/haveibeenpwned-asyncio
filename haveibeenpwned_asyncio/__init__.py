@@ -5,7 +5,7 @@ from haveibeenpwned_asyncio.haveibeenpwned_async_client import (
     haveIbeenPwnedAccount,
     haveIbeenPwnedPasswords,
     haveIbeenPwnedClient,
-    haveIbeenPwnedPastes
+    haveIbeenPwnedPastes,
 )
 
 __all__ = [

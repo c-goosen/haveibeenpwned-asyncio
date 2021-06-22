@@ -3,6 +3,7 @@ import asyncio
 
 from aresponses import ResponsesMockServer
 
+
 class MockResponse:
     def __init__(self, text, status):
         self._text = text
@@ -24,7 +25,6 @@ def event_loop():
     # asyncio.set_event_loop(loop)
     yield loop
     loop.close()
-
 
 
 @pytest.fixture

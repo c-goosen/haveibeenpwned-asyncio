@@ -1,7 +1,7 @@
-import pytest  # noqa
-import os
-from haveibeenpwned_asyncio import haveIbeenPwnedAccount
-from .conftest import MockResponse
+# import pytest  # noqa
+# import os
+# from haveibeenpwned_asyncio import haveIbeenPwnedAccount
+# from .conftest import MockResponse
 
 # @pytest.fixture
 # def test_query_acc_fixture():
