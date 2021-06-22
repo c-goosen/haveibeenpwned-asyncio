@@ -30,6 +30,10 @@ tests_require = [
     "bandit",
     "pytest-runner",
     "python-dateutil",
+    "aioresponses",
+    "pytest-asyncio",
+    "asynctest",
+    "pytest-mock"
 ]
 
 setup(

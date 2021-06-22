@@ -1,16 +1,18 @@
 import asyncio
-import aiohttp
 from hashlib import sha1
 import os
-
+from functools import lru_cache
 from urllib.parse import quote_plus
-
+from aiohttp_retry import RetryClient, ExponentialRetry
 from haveibeenpwned_asyncio.constants import haveibeenpwned, hashing
 
 
 class haveIbeenPwnedClient(object):
     def __init__(
-        self, semaphore_max: int = 10, api_key: str = "", truncate_response: bool = True
+        self, semaphore_max: int = 10,
+            api_key: str = "",
+            truncate_response: bool = True,
+            retry_attempts=3
     ):
         self.semaphore_max = semaphore_max
         self.semaphore = asyncio.Semaphore(10)
@@ -19,6 +21,8 @@ class haveIbeenPwnedClient(object):
         self.api_key = None if not api_key else api_key
         self.truncate_response: bool = truncate_response
         self.loop = asyncio.get_event_loop()
+        self.retry_attempts = retry_attempts
+        self.retry_options = ExponentialRetry(attempts=self.retry_attempts)
 
     def generate_url(self, endpoint, object):
         return f"{self.base_url}/{endpoint}/{quote_plus(object)}"
@@ -28,21 +32,29 @@ class haveIbeenPwnedClient(object):
             header_obj.pop("hibp-api-key", None)
         else:
             header_obj["hibp-api-key"] = self.api_key
-            print(f"headers['hibp-api-key']: {header_obj['hibp-api-key'] }")
         return header_obj
 
-    async def aiohttp_client_get(self, url: str, obj: str = ""):
+    # async def handle_responses(self, responses, truncate_output=False):
+    #     if not truncate_output:
+    #
+    #     else:
+    #         return  responses
+
+    async def aiohttp_client_get(self, url: str= "", obj: str = ""):
+
         await self.semaphore.acquire()
         url = url + f"?truncateResponse={self.truncate_response}"
         headers = await self.prep_headers(haveibeenpwned.HTTP_HEADER.value)
 
         try:
-            async with aiohttp.ClientSession() as session:
-                async with session.get(url, headers=headers) as resp:
-                    # return url, await resp.status
-                    return obj, resp.status, await resp.text()
+            async with RetryClient(raise_for_status=False, retry_options=self.retry_options) as client:
+                async with client.get(url, headers=headers) as resp:
+                    resp_tuple = obj, resp.status, await resp.text()
+                    self.semaphore.release()
+                    return resp_tuple
         except Exception as e:
             print(f"Error: {e}")
+            return {"error": e}
 
         finally:
             self.semaphore.release()
@@ -51,6 +63,7 @@ class haveIbeenPwnedClient(object):
         asyncio_tasks = []
         for url in urls:
             asyncio_tasks.append(self.aiohttp_client_get(url=url[0], obj=url[1]))
+
         return asyncio_tasks
 
     async def gather_all_requests(self, asyncio_tasks: list = []):
@@ -79,29 +92,15 @@ class haveIbeenPwnedAccount(haveIbeenPwnedClient):
         coroutine = self.query_accounts()
         return self.loop.run_until_complete(coroutine)
 
-
-class haveIbeenPwnedPastes(haveIbeenPwnedClient):
-    def __init__(self, semaphore_max: int = 10, pastes: list = [], api_key: str = ""):
+class haveIbeenPwnedPastes(haveIbeenPwnedAccount):
+    def __init__(self, semaphore_max: int = 10, accounts: list = [], api_key: str = ""):
+        super().__init__(accounts, api_key)
+        self.api_key = api_key
         self.semaphore_max = semaphore_max
-        super().__init__(pastes, api_key)
         self.endpoint = haveibeenpwned.PASTES_ENDPOINT.value
-        self.pastes = pastes
+        self.accounts = accounts
 
-    async def query_pastes(self):
-        urls = []
-        for paste in self.pastes:
-            urls.append(
-                (self.generate_url(endpoint=self.endpoint, object=paste), paste)
-            )
-        responses = await self.gather_all_requests(
-            await self.queue_all_requeusts(urls=urls)
-        )
-        return responses
-
-    def query_pastes_sync(self):
-        coroutine = self.query_pastes()
-        return self.loop.run_until_complete(coroutine)
-
+        print(self.__dict__)
 
 class haveIbeenPwnedPasswords(haveIbeenPwnedClient):
     def __init__(
@@ -114,22 +113,58 @@ class haveIbeenPwnedPasswords(haveIbeenPwnedClient):
         self.api_key = ""
         self.base_url = haveibeenpwned.PASSWORD_BASE_URL.value
 
+    async def find_corresponding_hash(self, responses:list=[]):
+        response_list = []
+        for resp in responses:
+            if resp[1] == 200:
+                compare_hash = self.hibp_hash(self.generate_hash(resp[0]))
+                response_list.append((resp[0], bool(True if compare_hash in resp[2] else False)))
+            else:
+                response_list.append(resp[0], False)
+        return response_list
+
+    @lru_cache
+    def generate_hash(self, password):
+        """
+        Generates hash again for comparison
+
+        LRU cache ensures that its only calculated the first time this is called
+
+        uses lru_cache so only computed once
+        """
+        if isinstance(password, str):
+            password = password.encode(hashing.ENCODING.value)
+        return sha1(password).hexdigest()
+
+    @lru_cache
+    def hibp_hash(self, hash):
+        """
+        hibp returns hash without a prefix
+
+        uses lru_cache so only computed once
+
+        Also is uppercased
+        Ex: 2DC183F740EE76F27B78EB39C8AD972A757
+        """
+        return hash[5:].upper()
+
     async def query_passwords(self):
         urls = []
-        utf_passwords = [p.encode(hashing.ENCODING.value) for p in self.passwords]
-        for password in utf_passwords:
-            hash = sha1(password).hexdigest()
+        for password in self.passwords:
+            hash = self.generate_hash(password)
             urls.append(
                 (
                     self.generate_url(endpoint=self.endpoint, object=hash[:5]),
-                    password.decode("utf-8"),
+                    password,
                 )
             )
         responses = await self.gather_all_requests(
             await self.queue_all_requeusts(urls=urls)
         )
+        responses = await self.find_corresponding_hash(responses)
         return responses
 
     def query_passwords_sync(self):
         coroutine = self.query_passwords()
         return self.loop.run_until_complete(coroutine)
+
