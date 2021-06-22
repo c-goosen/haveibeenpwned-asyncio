@@ -30,9 +30,6 @@ jobs:
       - name: Install Poetry
         run: pip install poetry
 
-      - name: Test Install Lib Dependencies
-        run: poetry run python setup.py install
-
       - name: Install Dev Dependencies
         run: poetry install
 
@@ -43,7 +40,7 @@ jobs:
         run: poetry run flake8
 
       - name: Run Bandit Static Security Analysis
-        run: poetry run bandit -r za_id_number/
+        run: poetry run bandit -r haveibeenpwned_asyncio/
 
 #      - name: Run Snyk to check for vulnerabilities
 #        uses: snyk/actions/python@master
@@ -53,4 +50,4 @@ jobs:
 #          args: --severity-threshold=high --file=pyproject.toml
 
       - name: Run Tests
-        run: poetry run python setup.py test
+        run: poetry run pytest
